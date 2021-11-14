@@ -15,14 +15,13 @@ You can install directly from PyPi:
 pip install aWaifu
 ```
 <br>
-Or get the `.whl` from [release page](https://github.com/git-akihakune/aWaifu/releases/tag/v0.1.1).
+Or get the `.whl` from https://github.com/git-akihakune/aWaifu/releases/tag/v0.1.1.
 
 ## Usage
 To run with default options:
 ```bash
 python -m aWaifu
 ```
-<br>
 
 ## Scripting
 First, create a `Waifus` object:

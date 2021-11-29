@@ -1,1 +1,0 @@
-See the documentation <a href="https://github.com/git-akihakune/aWaifu">on Github</a>.

@@ -8,7 +8,7 @@ import random
 import psutil
 from . import species
 from PIL import Image
-from typing import Dict
+from typing import Dict, List
 
 
 class Waifus:
@@ -33,15 +33,10 @@ class Waifus:
         self.noImage = noImage
         self.autoCloseImage = autoCloseImage
         self.timeLimitBreak = faster
+        self.generatedProfiles: List[Dict[str:str]] = []
 
     # Methods are arranged from more public -> more private ones
     # The last method is an exception, as it's the main method of this class
-
-    @staticmethod
-    def cleanUpPreviousRuns() -> None:
-        """Delete data from previous executions"""
-        defaultDataDir: str = "waifus"
-        shutil.rmtree(defaultDataDir, ignore_errors=True)
 
     @staticmethod
     def showWaifuImages() -> None:
@@ -92,6 +87,12 @@ class Waifus:
 
         return random.choice(["Human", random.choice(NON_HUMAN_RACES)])
 
+    def cleanUpPreviousRuns(self) -> None:
+        """Delete data from previous executions"""
+        defaultDataDir: str = "waifus"
+        shutil.rmtree(defaultDataDir, ignore_errors=True)
+        self.generatedProfiles.clear()
+
     def _vbose(self, contextType: str, context) -> None:
         """Logging, verbose messages and image showing"""
         if self.verbose:
@@ -110,7 +111,7 @@ class Waifus:
     def _getRandomProfile(self, imagePath: str):
         """Generate random profile"""
 
-        profileDataPath: str = self.dataPath + "profile.json"
+        profileDataPath: str = os.path.join(self.dataPath, "profile.json")
 
         # Using free, no-authentication Name Fake API
         apiHost: str = "https://api.namefake.com"
@@ -139,11 +140,8 @@ class Waifus:
             "blood_type": rawData["blood"],
         }
 
+        self.generatedProfiles.append(waifuData)
         self._vbose("dictionary", waifuData)
-
-        with open(profileDataPath, "a+") as f:
-            f.write(json.dumps(waifuData, indent=4, ensure_ascii=False))
-            f.write("\n\n\n")
 
     def _getRandomImages(self, filename: str) -> None:
         """Getting waifu images from waifulabs"""
@@ -166,6 +164,8 @@ class Waifus:
     def generateProfiles(self) -> None:
         """Generate full waifu profiles"""
 
+        profileDataPath: str = os.path.join(self.dataPath, "profile.json")
+
         # Set up data directory the first run
         if not os.path.isdir(self.dataPath):
             os.mkdir(self.dataPath)
@@ -180,6 +180,9 @@ class Waifus:
 
             if not self.timeLimitBreak:
                 time.sleep(0.75)  # try not to DOS Waifulab's servers
+        
+        with open(profileDataPath, "a+") as f:
+            f.write(json.dumps(self.generatedProfiles, indent=4, ensure_ascii=False))
         
         # Clear remaining image
         if self.autoCloseImage:
